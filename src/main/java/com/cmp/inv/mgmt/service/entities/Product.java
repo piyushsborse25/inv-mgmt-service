@@ -2,7 +2,10 @@ package com.cmp.inv.mgmt.service.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
