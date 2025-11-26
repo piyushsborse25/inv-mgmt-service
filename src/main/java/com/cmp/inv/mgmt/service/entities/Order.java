@@ -23,6 +23,7 @@ public class Order {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "customer_id", nullable = false)
+    @Setter(AccessLevel.NONE)
     private Customer customer;
 
     @NotNull
@@ -38,6 +39,7 @@ public class Order {
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Setter(AccessLevel.NONE)
+    @Builder.Default
     private List<OrderDetail> orderDetails = new ArrayList<>();
 
     public void addOrderDetail(OrderDetail detail) {
@@ -50,5 +52,12 @@ public class Order {
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
+    }
+
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
+        if (customer != null && !customer.getOrders().contains(this)) {
+            customer.getOrders().add(this);
+        }
     }
 }

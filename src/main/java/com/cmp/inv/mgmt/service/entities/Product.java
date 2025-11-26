@@ -49,6 +49,7 @@ public class Product {
 
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
     @Setter(AccessLevel.NONE)
+    @Builder.Default
     private List<OrderDetail> orderDetails = new ArrayList<>();
 
     public void setCategory(Category category) {

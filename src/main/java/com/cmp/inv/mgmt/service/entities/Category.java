@@ -31,6 +31,7 @@ public class Category {
 
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
     @Setter(AccessLevel.NONE)
+    @Builder.Default
     private List<Product> products = new ArrayList<>();
 
     private LocalDateTime createdAt;
