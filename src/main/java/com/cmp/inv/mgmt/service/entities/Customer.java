@@ -8,6 +8,7 @@ import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "customers")
@@ -54,5 +55,16 @@ public class Customer {
             orders.add(order);
             order.setCustomer(this);
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Customer customer)) return false;
+        return Objects.equals(getEmail(), customer.getEmail());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getEmail());
     }
 }

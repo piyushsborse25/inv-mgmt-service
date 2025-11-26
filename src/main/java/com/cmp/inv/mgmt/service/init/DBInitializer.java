@@ -15,7 +15,9 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -31,6 +33,13 @@ public class DBInitializer {
 
     private final Faker faker = new Faker();
 
+    private static final int CATEGORY_COUNT = 50;
+    private static final int PRODUCT_COUNT = 500;
+    private static final int CUSTOMER_COUNT = 2000;
+    private static final int ORDER_COUNT = 6000;
+    private static final int MIN_ORDER_ITEMS = 1;
+    private static final int MAX_ORDER_ITEMS = 20;
+
     @PostConstruct
     public void init() {
 
@@ -41,18 +50,20 @@ public class DBInitializer {
             return;
 
         // Seed Categories
-        List<Category> categories = IntStream.range(0, 5).
-                mapToObj(i -> Category.builder()
-                        .name(faker.commerce().department())
-                        .description(faker.lorem().sentence())
-                        .build())
-                .toList();
-        categories = categoryRepository.saveAll(categories);
+        Set<Category> cats = new HashSet<>();
+        for (int i = 0; i < CATEGORY_COUNT; i++) {
+            Category build = Category.builder()
+                    .name(faker.commerce().department())
+                    .description(faker.lorem().sentence())
+                    .build();
+            cats.add(build);
+        }
+        List<Category> categories = categoryRepository.saveAll(cats.stream().toList());
         log.info("Saved categories");
 
         // Seed Products and attach to Category using helper method
         List<Product> products = new ArrayList<>();
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < PRODUCT_COUNT; i++) {
             Category category = categories.get(faker.random().nextInt(categories.size()));
             Product product = Product.builder().
                     sku("SKU-" + faker.number().digits(8))
@@ -69,22 +80,24 @@ public class DBInitializer {
         log.info("Saved products");
 
         // Seed Customers
-        List<Customer> customers = IntStream.range(0, 10)
-                .mapToObj(i -> Customer.builder()
-                        .email(faker.internet().emailAddress())
-                        .password("pass" + faker.number().digits(4))
-                        .fullName(faker.name().fullName())
-                        .billingAddress(faker.address().fullAddress())
-                        .defaultShippingAddress(faker.address().streetAddress())
-                        .country(faker.address().country())
-                        .phone(faker.phoneNumber().cellPhone())
-                        .build())
-                .toList();
-        customers = customerRepository.saveAll(customers);
+        Set<Customer> custs = new HashSet<>();
+        for (int i = 0; i < CUSTOMER_COUNT; i++) {
+            Customer build = Customer.builder()
+                    .email(faker.internet().emailAddress())
+                    .password("pass" + faker.number().digits(4))
+                    .fullName(faker.name().fullName())
+                    .billingAddress(faker.address().fullAddress())
+                    .defaultShippingAddress(faker.address().streetAddress())
+                    .country(faker.address().country())
+                    .phone(faker.phoneNumber().cellPhone())
+                    .build();
+            custs.add(build);
+        }
+        List<Customer> customers = customerRepository.saveAll(custs.stream().toList());
         log.info("Saved customers");
 
-        // 4️⃣ Create Orders + OrderDetails using helper methods
-        for (int i = 0; i < 40; i++) {
+        // Create Orders & OrderDetails using helper methods
+        for (int i = 0; i < ORDER_COUNT; i++) {
             Customer customer = customers.get(faker.random().nextInt(customers.size()));
 
             // Create Order
@@ -92,7 +105,7 @@ public class DBInitializer {
             order.setCustomer(customer);
 
             double total = 0.0;
-            int items = faker.random().nextInt(1, 4);
+            int items = faker.random().nextInt(MIN_ORDER_ITEMS, MAX_ORDER_ITEMS);
 
             for (int j = 0; j < items; j++) {
                 Product product = products.get(faker.random().nextInt(products.size()));
@@ -104,9 +117,8 @@ public class DBInitializer {
             }
 
             order.setTotalPrice(BigDecimal.valueOf(total));
-            log.info("Before Saved order");
             orderRepository.save(order);
-            log.info("After Saved order");
+            log.info("Saved order");
         }
 
         log.info("Data seeded successfully using bidirectional helper methods");

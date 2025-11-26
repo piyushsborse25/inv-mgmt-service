@@ -8,6 +8,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "categories")
@@ -53,5 +54,16 @@ public class Category {
     @PreUpdate
     public void onUpdate() {
         updatedAt = LocalDateTime.now();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Category category)) return false;
+        return Objects.equals(getName(), category.getName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getName());
     }
 }
