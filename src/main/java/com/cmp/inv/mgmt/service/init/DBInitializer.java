@@ -88,7 +88,7 @@ public class DBInitializer {
             Customer customer = customers.get(faker.random().nextInt(customers.size()));
 
             // Create Order
-            Order order = Order.builder().status(OrderStatus.PLACED).totalPrice(BigDecimal.ZERO).build();
+            Order order = Order.builder().status(OrderStatus.randomStatus()).totalPrice(BigDecimal.ZERO).build();
             order.setCustomer(customer);
 
             double total = 0.0;
