@@ -1,74 +1,112 @@
 package com.cmp.inv.mgmt.service.init;
 
-import com.cmp.inv.mgmt.service.entities.Category;
-import com.cmp.inv.mgmt.service.entities.Product;
+import com.cmp.inv.mgmt.service.entities.*;
+import com.cmp.inv.mgmt.service.enums.OrderStatus;
 import com.cmp.inv.mgmt.service.repos.CategoryRepository;
+import com.cmp.inv.mgmt.service.repos.CustomerRepository;
+import com.cmp.inv.mgmt.service.repos.OrderRepository;
 import com.cmp.inv.mgmt.service.repos.ProductRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import net.datafaker.Faker;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
-import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Component
 @RequiredArgsConstructor
-public class DBInitializer implements CommandLineRunner {
+public class DBInitializer {
 
-    private static final Logger log = LogManager.getLogger(DBInitializer.class);
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
+    private final CustomerRepository customerRepository;
+    private final OrderRepository orderRepository;
 
-    private final Faker faker = new Faker(new Locale("en-IND"));
-    private final Random random = new Random();
+    private final Faker faker = new Faker();
 
-    @Override
-    public void run(String... args) {
+    @PostConstruct
+    public void init() {
 
-        if (productRepository.count() > 0) {
-            return; // DB already initialized
-        }
+        if (categoryRepository.count() > 0 ||
+                productRepository.count() > 0 ||
+                customerRepository.count() > 0 ||
+                orderRepository.count() > 0)
+            return;
 
-        // ---------------------------
-        // 1. Create Categories
-        // ---------------------------
-        List<String> categoryNames = Arrays.asList(
-                "Electronics", "Home Appliances", "Fashion", "Sports", "Books"
-        );
-
-        List<Category> categories = categoryNames.stream()
-                .map(name -> Category.builder()
-                        .name(name)
-                        .description("Auto-generated category for " + name)
-                        .build()
-                ).toList();
-
+        // 1️⃣ Seed Categories
+        List<Category> categories = IntStream.range(0, 5)
+                .mapToObj(i -> Category.builder()
+                        .name(faker.commerce().department())
+                        .description(faker.lorem().sentence())
+                        .build())
+                .collect(Collectors.toList());
         categoryRepository.saveAll(categories);
 
-        // ---------------------------
-        // 2. Create Random Products
-        // ---------------------------
-        for (int i = 0; i < 30; i++) {
+        // 2️⃣ Seed Products and attach to Category using helper method
+        List<Product> products = IntStream.range(0, 20)
+                .mapToObj(i -> {
+                    Category category = categories.get(faker.random().nextInt(categories.size()));
+                    Product product = Product.builder()
+                            .sku("SKU-" + faker.number().digits(8))
+                            .name(faker.commerce().productName())
+                            .description(faker.lorem().sentence())
+                            .price(faker.number().randomDouble(2, 50, 2000))
+                            .stock(faker.number().numberBetween(10, 200))
+                            .imageUrl(faker.internet().image())
+                            .build();
+                    category.addProduct(product);
+                    return product;
+                })
+                .collect(Collectors.toList());
+        productRepository.saveAll(products);
 
-            Category randomCategory = categories.get(random.nextInt(categories.size()));
+        // 3️⃣ Seed Customers
+        List<Customer> customers = IntStream.range(0, 10)
+                .mapToObj(i -> Customer.builder()
+                        .email(faker.internet().emailAddress())
+                        .password("pass" + faker.number().digits(4))
+                        .fullName(faker.name().fullName())
+                        .billingAddress(faker.address().fullAddress())
+                        .defaultShippingAddress(faker.address().streetAddress())
+                        .country(faker.address().country())
+                        .phone(faker.phoneNumber().cellPhone())
+                        .build())
+                .collect(Collectors.toList());
+        customerRepository.saveAll(customers);
 
-            Product product = Product.builder()
-                    .name(faker.commerce().productName())
-                    .sku("SKU-" + faker.number().numberBetween(10000, 99999))
-                    .price(faker.number().randomDouble(2, 100, 30000))
-                    .stock(faker.number().numberBetween(0, 500))
-                    .status(faker.options().option("ACTIVE", "INACTIVE"))
-                    .category(randomCategory)
+        // 4️⃣ Create Orders + OrderDetails using helper methods
+        for (int i = 0; i < 40; i++) {
+            Customer customer = customers.get(faker.random().nextInt(customers.size()));
+            Order order = Order.builder()
+                    .status(OrderStatus.PLACED)
+                    .totalPrice(0.0)
                     .build();
 
-            productRepository.save(product);
+            customer.addOrder(order);
+
+            double total = 0.0;
+            int items = faker.random().nextInt(1, 4);
+
+            for (int j = 0; j < items; j++) {
+                Product product = products.get(faker.random().nextInt(products.size()));
+                int qty = faker.number().numberBetween(1, 5);
+
+                OrderDetail detail = OrderDetail.builder()
+                        .quantity(qty)
+                        .build();
+
+                order.addOrderDetail(detail);   // maintain relationship
+                product.addOrderDetail(detail); // maintain other side
+
+                total += product.getPrice() * qty;
+            }
+
+            order.setTotalPrice(total);
+            orderRepository.save(order); // cascades save for details
         }
 
-        log.info("✔ Random Categories & Products inserted successfully!");
+        System.out.println("🎯 Data seeded successfully using bidirectional helper methods");
     }
 }

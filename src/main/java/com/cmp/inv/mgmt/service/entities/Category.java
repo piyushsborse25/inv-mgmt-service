@@ -3,12 +3,11 @@ package com.cmp.inv.mgmt.service.entities;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "categories")
@@ -30,8 +29,19 @@ public class Category {
     @Size(max = 255)
     private String description;
 
+    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
+    @Setter(AccessLevel.NONE)
+    private List<Product> products = new ArrayList<>();
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    public void addProduct(Product product) {
+        if (!products.contains(product)) {
+            products.add(product);
+            product.setCategory(this);
+        }
+    }
 
     @PrePersist
     public void onCreate() {

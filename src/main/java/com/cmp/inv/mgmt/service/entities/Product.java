@@ -1,68 +1,67 @@
 package com.cmp.inv.mgmt.service.entities;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.*;
 
-import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "products")
 @Data
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Product name is required")
-    @Size(min = 2, max = 150, message = "Product name must be 2–150 characters")
-    @Column(nullable = false)
-    private String name;
-
-    @NotBlank(message = "SKU is required")
-    @Size(min = 3, max = 50)
+    @NotBlank
     @Column(nullable = false, unique = true)
     private String sku;
 
-    @NotNull(message = "Price cannot be null")
-    @Min(value = 1, message = "Price must be at least 1")
+    @NotBlank
+    @Size(max = 255)
+    private String name;
+
+    @Column(length = 500)
+    private String description;
+
+    @NotNull
     @Column(nullable = false)
     private Double price;
 
-    @NotNull(message = "Stock cannot be null")
-    @Min(value = 0, message = "Stock must be >= 0")
+    @NotNull
     @Column(nullable = false)
     private Integer stock;
 
-    @NotBlank(message = "Status cannot be blank")
-    @Pattern(regexp = "ACTIVE|INACTIVE", message = "Status must be ACTIVE or INACTIVE")
-    @Column(nullable = false)
-    private String status;
+    private String imageUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
-    @NotNull(message = "Category is required")
+    @Setter(AccessLevel.NONE)
     private Category category;
 
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
+    @Setter(AccessLevel.NONE)
+    private List<OrderDetail> orderDetails = new ArrayList<>();
 
-    @PrePersist
-    public void preInsert() {
-        createdAt = LocalDateTime.now();
-        updatedAt = createdAt;
-        if (status == null) status = "ACTIVE";
+    public void setCategory(Category category) {
+        this.category = category;
+        if (category != null && !category.getProducts().contains(this)) {
+            category.getProducts().add(this);
+        }
     }
 
-    @PreUpdate
-    public void preUpdate() {
-        updatedAt = LocalDateTime.now();
+    public void addOrderDetail(OrderDetail detail) {
+        if (!orderDetails.contains(detail)) {
+            orderDetails.add(detail);
+            detail.setProduct(this);
+        }
     }
 }
