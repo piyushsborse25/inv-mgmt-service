@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,8 +34,8 @@ public class Product {
     private String description;
 
     @NotNull
-    @Column(nullable = false)
-    private Double price;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal price;
 
     @NotNull
     @Column(nullable = false)

@@ -13,6 +13,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -57,7 +58,7 @@ public class DBInitializer {
                     sku("SKU-" + faker.number().digits(8))
                     .name(faker.commerce().productName())
                     .description(faker.lorem().sentence())
-                    .price(faker.number().randomDouble(2, 50, 2000))
+                    .price(BigDecimal.valueOf(faker.number().randomDouble(2, 50, 2000)))
                     .stock(faker.number().numberBetween(10, 200))
                     .imageUrl(faker.internet().image())
                     .build();
@@ -87,7 +88,7 @@ public class DBInitializer {
             Customer customer = customers.get(faker.random().nextInt(customers.size()));
 
             // Create Order
-            Order order = Order.builder().status(OrderStatus.PLACED).totalPrice(0.0).build();
+            Order order = Order.builder().status(OrderStatus.PLACED).totalPrice(BigDecimal.ZERO).build();
             order.setCustomer(customer);
 
             double total = 0.0;
@@ -99,10 +100,10 @@ public class DBInitializer {
                 OrderDetail detail = OrderDetail.builder().quantity(qty).build();
                 detail.setOrder(order);
                 detail.setProduct(product);
-                total += product.getPrice() * qty;
+                total += product.getPrice().doubleValue() * qty;
             }
 
-            order.setTotalPrice(total);
+            order.setTotalPrice(BigDecimal.valueOf(total));
             log.info("Before Saved order");
             orderRepository.save(order);
             log.info("After Saved order");
