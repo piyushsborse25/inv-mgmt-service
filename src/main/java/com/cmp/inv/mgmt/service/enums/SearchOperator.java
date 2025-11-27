@@ -28,7 +28,8 @@ public enum SearchOperator  {
 
     // Null checks
     IS_NULL("Is Null"),
-    IS_NOT_NULL("Is Not Null");
+    IS_NOT_NULL("Is Not Null"),
+    BEFORE("Before"), AFTER("After"), ON("On");
 
     private final String label;
 
