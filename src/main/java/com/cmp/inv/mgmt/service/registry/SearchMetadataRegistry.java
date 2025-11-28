@@ -14,10 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Component
 public class SearchMetadataRegistry {
@@ -26,6 +23,9 @@ public class SearchMetadataRegistry {
 
     @Value("${search.entities.base-package}")
     private String basePackage;
+
+    @Value("${search.entities.root-class}")
+    private String rootClass;
 
     @PostConstruct
     public void init() {
@@ -39,42 +39,54 @@ public class SearchMetadataRegistry {
             SearchRoot rootAnn = entityClass.getAnnotation(SearchRoot.class);
             String basePath = rootAnn.path();
             for (Field field : entityClass.getDeclaredFields()) {
-                if (!field.isAnnotationPresent(Searchable.class)) {
-                    continue;
+                if (!field.isAnnotationPresent(Searchable.class)) continue;
+                try {
+                    registerField(entityClass, field, basePath);
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException(e);
                 }
-                registerField(entityClass, field, basePath);
             }
         }
 
         System.out.println("Search Metadata Ready: " + metadataMap.size() + " fields registered.");
     }
 
-    private void registerField(Class<?> entityClass, Field field, String basePath) {
+    private void registerField(Class<?> entityClass, Field field, String basePath) throws ClassNotFoundException {
 
-        String jpaPath = basePath + "." + field.getName();
-        jpaPath = jpaPath.toLowerCase();
+        LinkedList<String> joinPath =
+                basePath == null || basePath.isBlank()
+                        ? new LinkedList<>()
+                        : new LinkedList<>(Arrays.stream(basePath.toLowerCase().split("\\.")).skip(1).toList());
+
         FieldType fieldType = FieldTypeResolver.fromJavaType(field.getType());
         Set<SearchOperator> allowedOperators = AllowedOperators.forType(fieldType);
-        int depth = jpaPath.split("\\.").length;
 
-        SearchKey key = new SearchKey(entityClass, field.getName());
+        String attribute = field.getName();
+        String jpaPath = basePath + "." + attribute;
+        SearchKey key = new SearchKey(entityClass, attribute);
+
 
         FieldMetadata metadata = FieldMetadata.builder()
+                .field(attribute)
+                .jpaPath(jpaPath.toLowerCase())
                 .entityClass(entityClass)
-                .field(field.getName())
-                .jpaPath(jpaPath)
+                .rootEntityClass(Class.forName(rootClass))
+                .joinPath(joinPath)
+                .attribute(attribute)
                 .fieldType(fieldType)
-                .depth(depth)
                 .allowedOperators(allowedOperators)
                 .build();
 
         metadataMap.put(key, metadata);
 
-        System.out.println("Registered: " + key + " -> " + jpaPath);
+        System.out.println(
+                "Registered: entity=" + entityClass.getSimpleName() +
+                        " attr=" + attribute +
+                        " path=" + jpaPath +
+                        " joins=" + joinPath);
     }
 
     public FieldMetadata get(SearchKey key) {
-        System.out.println(metadataMap.values());
         return metadataMap.get(key);
     }
 

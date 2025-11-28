@@ -1,7 +1,8 @@
 package com.cmp.inv.mgmt.service.engine;
 
 import com.cmp.inv.mgmt.service.InvMgmtServiceApplication;
-import com.cmp.inv.mgmt.service.entities.OrderDetail;
+import com.cmp.inv.mgmt.service.entities.Category;
+import com.cmp.inv.mgmt.service.records.FieldMetadata;
 import com.cmp.inv.mgmt.service.records.SearchKey;
 import com.cmp.inv.mgmt.service.registry.SearchMetadataRegistry;
 import org.springframework.boot.SpringApplication;
@@ -15,7 +16,8 @@ public class Executor {
 
         try (context) {
             SearchMetadataRegistry registry = context.getBean(SearchMetadataRegistry.class);
-            System.out.println("Metadata: " + registry.get(new SearchKey(OrderDetail.class, "quantity")));
+            FieldMetadata metadata = registry.get(new SearchKey(Category.class, "name"));
+            System.out.println("Metadata: " + metadata);
         }
     }
 }
