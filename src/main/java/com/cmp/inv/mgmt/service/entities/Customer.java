@@ -29,6 +29,7 @@ public class Customer {
 
     @NotBlank
     @Size(min = 6)
+    @ToString.Exclude
     private String password;
 
     @NotBlank
@@ -36,9 +37,11 @@ public class Customer {
     private String fullName;
 
     @Column(name = "billing_address")
+    @ToString.Exclude
     private String billingAddress;
 
     @Column(name = "default_shipping_address")
+    @ToString.Exclude
     private String defaultShippingAddress;
 
     private String country;
@@ -46,7 +49,8 @@ public class Customer {
     private String phone;
 
     @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @Setter(AccessLevel.NONE)
+    @Setter
+    @ToString.Exclude
     @Builder.Default
     private List<Order> orders = new ArrayList<>();
 

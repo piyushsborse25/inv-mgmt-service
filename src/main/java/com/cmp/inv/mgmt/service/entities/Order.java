@@ -25,6 +25,7 @@ public class Order {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "customer_id", nullable = false)
     @Setter(AccessLevel.NONE)
+    @ToString.Exclude
     private Customer customer;
 
     @NotNull
@@ -40,6 +41,7 @@ public class Order {
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Setter(AccessLevel.NONE)
+    @ToString.Exclude
     @Builder.Default
     private List<OrderDetail> orderDetails = new ArrayList<>();
 

@@ -46,6 +46,7 @@ public class Product {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     @Setter(AccessLevel.NONE)
+    @ToString.Exclude
     private Category category;
 
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)

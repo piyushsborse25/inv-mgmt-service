@@ -32,6 +32,7 @@ public class Category {
 
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
     @Setter(AccessLevel.NONE)
+    @ToString.Exclude
     @Builder.Default
     private List<Product> products = new ArrayList<>();
 
