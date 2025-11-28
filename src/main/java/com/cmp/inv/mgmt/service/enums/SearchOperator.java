@@ -3,7 +3,7 @@ package com.cmp.inv.mgmt.service.enums;
 import lombok.Getter;
 
 @Getter
-public enum SearchOperator  {
+public enum SearchOperator {
 
     // Common for text, enums, IDs
     EQUALS("Equals"),

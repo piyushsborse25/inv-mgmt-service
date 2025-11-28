@@ -8,7 +8,8 @@ import java.time.LocalDateTime;
 
 public final class FieldTypeResolver {
 
-    private FieldTypeResolver() {}
+    private FieldTypeResolver() {
+    }
 
     public static FieldType fromJavaType(Class<?> type) {
         if (String.class.equals(type)) {

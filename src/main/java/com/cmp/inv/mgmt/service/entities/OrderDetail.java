@@ -1,5 +1,7 @@
 package com.cmp.inv.mgmt.service.entities;
 
+import com.cmp.inv.mgmt.service.annotations.SearchRoot;
+import com.cmp.inv.mgmt.service.annotations.Searchable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -10,6 +12,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@SearchRoot(path = "Order.OrderDetail")
 public class OrderDetail {
 
     @Id
@@ -29,6 +32,7 @@ public class OrderDetail {
     private Product product;
 
     @NotNull
+    @Searchable
     private Integer quantity;
 
     public void setOrder(Order order) {

@@ -8,7 +8,8 @@ import java.util.Set;
 
 public final class AllowedOperators {
 
-    private AllowedOperators() {}
+    private AllowedOperators() {
+    }
 
     public static Set<SearchOperator> forType(FieldType type) {
         return switch (type) {
