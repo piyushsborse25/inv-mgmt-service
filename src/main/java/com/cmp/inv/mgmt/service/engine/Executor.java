@@ -1,27 +1,35 @@
 package com.cmp.inv.mgmt.service.engine;
 
 import com.cmp.inv.mgmt.service.InvMgmtServiceApplication;
-import com.cmp.inv.mgmt.service.entities.Customer;
+import com.cmp.inv.mgmt.service.enums.SearchField;
+import com.cmp.inv.mgmt.service.registry.impl.FieldMetadataRegistry;
 import com.cmp.inv.mgmt.service.repos.CustomerRepository;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.data.jpa.domain.Specification;
-
-import java.util.List;
 
 public class Executor {
 
+    private static final org.apache.logging.log4j.Logger log = LogManager.getLogger(Executor.class);
+
     public static void main(String[] args) {
 
-        ConfigurableApplicationContext context =
-                SpringApplication.run(InvMgmtServiceApplication.class, args);
-
+        ConfigurableApplicationContext context = SpringApplication.run(InvMgmtServiceApplication.class, args);
         CustomerRepository myService = context.getBean(CustomerRepository.class);
 
-        Specification<Customer> spec = (root, query, cb) -> cb.like(root.get("email"), "%gmail.com");
-        List<Customer> result = myService.findAll(spec);
-        result.forEach(System.out::println);
+        try {
 
-        context.close();
+
+            FieldMetadataRegistry registry = new FieldMetadataRegistry();
+
+            System.out.println("Metadata: "+ registry.get(SearchField.CUSTOMER_FULL_NAME));
+
+
+
+        } catch (Exception e) {
+            System.out.println(e);
+        } finally {
+            context.close();
+        }
     }
 }

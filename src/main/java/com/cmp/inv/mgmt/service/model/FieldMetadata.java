@@ -5,11 +5,13 @@ import com.cmp.inv.mgmt.service.enums.SearchField;
 import com.cmp.inv.mgmt.service.enums.SearchOperator;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.util.Set;
 
 @Getter
 @Builder
+@ToString
 public class FieldMetadata {
     private final SearchField field;
     private final Class<?> entityClass;

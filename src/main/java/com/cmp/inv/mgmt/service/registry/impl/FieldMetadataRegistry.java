@@ -8,23 +8,22 @@ import com.cmp.inv.mgmt.service.enums.FieldType;
 import com.cmp.inv.mgmt.service.enums.SearchField;
 import com.cmp.inv.mgmt.service.enums.SearchOperator;
 import com.cmp.inv.mgmt.service.model.FieldMetadata;
-import com.cmp.inv.mgmt.service.registry.FieldMetadataRegistry;
+import com.cmp.inv.mgmt.service.registry.MetadataRegistry;
 
 import java.lang.reflect.Field;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Set;
 
-public class FieldMetadataRegistryImpl implements FieldMetadataRegistry {
+public class FieldMetadataRegistry implements MetadataRegistry {
 
     private final Map<SearchField, FieldMetadata> metadataMap = new EnumMap<>(SearchField.class);
 
-    // Business config: which entity + base path + depth for each SearchField
     private final Map<SearchField, EntityBinding> bindings = new EnumMap<>(SearchField.class);
 
-    public FieldMetadataRegistryImpl() {
-        initBindings();      // business mappings
-        buildMetadata();     // reflection + rules
+    public FieldMetadataRegistry() {
+        initBindings();
+        buildMetadata();
     }
 
     @Override
@@ -32,7 +31,6 @@ public class FieldMetadataRegistryImpl implements FieldMetadataRegistry {
         return metadataMap.get(field);
     }
 
-    // Business bindings (who owns what)
     private void initBindings() {
         // ===== CUSTOMER (depth=1) =====
         bindings.put(SearchField.CUSTOMER_FULL_NAME,
@@ -53,8 +51,6 @@ public class FieldMetadataRegistryImpl implements FieldMetadataRegistry {
         // ===== ORDER DETAIL (depth=3) =====
         bindings.put(SearchField.ORDER_DETAIL_QUANTITY,
                 new EntityBinding(OrderDetail.class, "orderDetails", 3));
-        bindings.put(SearchField.ORDER_DETAIL_UNIT_PRICE,
-                new EntityBinding(OrderDetail.class, "orderDetails", 3));
 
         // ===== PRODUCT (depth=3) =====
         bindings.put(SearchField.PRODUCT_NAME,
@@ -71,10 +67,8 @@ public class FieldMetadataRegistryImpl implements FieldMetadataRegistry {
                 new EntityBinding(Category.class, "orderDetails.product.category", 4));
         bindings.put(SearchField.CATEGORY_DESCRIPTION,
                 new EntityBinding(Category.class, "orderDetails.product.category", 4));
-        // createdAt/updatedAt if needed...
     }
 
-    // Build metadata using Reflection + business rules
     private void buildMetadata() {
         for (SearchField sf : SearchField.values()) {
 
@@ -83,7 +77,7 @@ public class FieldMetadataRegistryImpl implements FieldMetadataRegistry {
                 continue;
             }
 
-            Class<?> entityClass = binding.getEntityClass();
+            Class<?> entityClass = binding.entityClass();
             String javaFieldName = sf.getFieldName();
 
             Field javaField;
@@ -98,11 +92,10 @@ public class FieldMetadataRegistryImpl implements FieldMetadataRegistry {
             Set<SearchOperator> allowedOps = AllowedOperators.forType(fieldType);
 
             String jpaPath;
-            if (binding.getBasePathFromOrder() == null || binding.getBasePathFromOrder().isBlank()) {
-                // Order root field, no prefix
+            if (binding.basePathFromOrder() == null || binding.basePathFromOrder().isBlank()) {
                 jpaPath = javaFieldName;
             } else {
-                jpaPath = binding.getBasePathFromOrder() + "." + javaFieldName;
+                jpaPath = binding.basePathFromOrder() + "." + javaFieldName;
             }
 
             FieldMetadata metadata = FieldMetadata.builder()
@@ -110,7 +103,7 @@ public class FieldMetadataRegistryImpl implements FieldMetadataRegistry {
                     .entityClass(entityClass)
                     .jpaPath(jpaPath)
                     .fieldType(fieldType)
-                    .depth(binding.getDepth())
+                    .depth(binding.depth())
                     .allowedOperators(allowedOps)
                     .build();
 
