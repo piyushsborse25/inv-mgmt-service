@@ -1,5 +1,7 @@
 package com.cmp.inv.mgmt.service.entities;
 
+import com.cmp.inv.mgmt.service.annotations.SearchRoot;
+import com.cmp.inv.mgmt.service.annotations.Searchable;
 import com.cmp.inv.mgmt.service.enums.OrderStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -16,10 +18,12 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@SearchRoot
 public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Searchable
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -34,9 +38,11 @@ public class Order {
     private OrderStatus status;
 
     @Column(name = "created_at", nullable = false, updatable = false)
+    @Searchable
     private LocalDateTime createdAt;
 
     @Column(name = "total_price", nullable = false, precision = 10, scale = 2)
+    @Searchable
     private BigDecimal totalPrice;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

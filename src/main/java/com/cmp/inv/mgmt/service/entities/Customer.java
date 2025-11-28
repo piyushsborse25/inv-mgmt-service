@@ -1,5 +1,7 @@
 package com.cmp.inv.mgmt.service.entities;
 
+import com.cmp.inv.mgmt.service.annotations.SearchRoot;
+import com.cmp.inv.mgmt.service.annotations.Searchable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -16,15 +18,18 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@SearchRoot(path = "Order.Customer")
 public class Customer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Searchable
     private Long id;
 
     @Email
     @NotBlank
     @Column(nullable = false, unique = true)
+    @Searchable
     private String email;
 
     @NotBlank
@@ -34,6 +39,7 @@ public class Customer {
 
     @NotBlank
     @Column(name = "full_name")
+    @Searchable
     private String fullName;
 
     @Column(name = "billing_address")
@@ -44,8 +50,10 @@ public class Customer {
     @ToString.Exclude
     private String defaultShippingAddress;
 
+    @Searchable
     private String country;
 
+    @Searchable
     private String phone;
 
     @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY, cascade = CascadeType.ALL)

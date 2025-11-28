@@ -1,5 +1,7 @@
 package com.cmp.inv.mgmt.service.entities;
 
+import com.cmp.inv.mgmt.service.annotations.SearchRoot;
+import com.cmp.inv.mgmt.service.annotations.Searchable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -16,15 +18,18 @@ import java.util.Objects;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@SearchRoot(path = "Order.OrderDetail.Product.Category")
 public class Category {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Searchable
     private Long id;
 
     @NotBlank(message = "Category name cannot be empty")
     @Size(min = 2, max = 100, message = "Category name must be between 2 and 100 characters")
     @Column(nullable = false, unique = true)
+    @Searchable
     private String name;
 
     @Size(max = 255)
@@ -36,7 +41,10 @@ public class Category {
     @Builder.Default
     private List<Product> products = new ArrayList<>();
 
+    @Searchable
     private LocalDateTime createdAt;
+
+    @Searchable
     private LocalDateTime updatedAt;
 
     public void addProduct(Product product) {
