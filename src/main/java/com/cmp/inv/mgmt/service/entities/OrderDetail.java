@@ -12,7 +12,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@SearchRoot(path = "Order.OrderDetail")
+@SearchRoot(path = "Order.orderDetails")
 public class OrderDetail {
 
     @Id

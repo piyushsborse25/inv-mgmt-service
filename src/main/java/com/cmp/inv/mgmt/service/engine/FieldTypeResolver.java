@@ -12,20 +12,25 @@ public final class FieldTypeResolver {
     }
 
     public static FieldType fromJavaType(Class<?> type) {
+
         if (String.class.equals(type)) {
             return FieldType.STRING;
         }
+
         if (Number.class.isAssignableFrom(type) || BigDecimal.class.equals(type)
                 || type.equals(Integer.class) || type.equals(Long.class)
                 || type.equals(Double.class)) {
             return FieldType.NUMBER;
         }
+
         if (LocalDate.class.equals(type) || LocalDateTime.class.equals(type)) {
             return FieldType.DATE;
         }
+
         if (Boolean.class.equals(type) || boolean.class.equals(type)) {
             return FieldType.BOOLEAN;
         }
+
         if (type.isEnum()) {
             return FieldType.ENUM;
         }

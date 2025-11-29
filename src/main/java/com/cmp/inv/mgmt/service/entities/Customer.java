@@ -18,7 +18,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@SearchRoot(path = "Order.Customer")
+@SearchRoot(path = "Order.customer")
 public class Customer {
 
     @Id

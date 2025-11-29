@@ -59,6 +59,10 @@ public class DynamicSpecificationBuilder {
                 );
             }
 
+            if (query != null) {
+                query.distinct(true);
+            }
+
             // Build JOIN path dynamically
             From<?, ?> joinHandle = root;
             for (String relation : md.joinPath()) {
