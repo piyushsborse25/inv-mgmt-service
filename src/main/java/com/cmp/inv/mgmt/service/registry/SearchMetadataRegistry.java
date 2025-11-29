@@ -20,7 +20,7 @@ import java.util.*;
 public class SearchMetadataRegistry {
 
     private final Map<SearchKey, FieldMetadata> metadataMap = new HashMap<>();
-    private final Map<String, FieldMetadata> fieldLookupMap = new HashMap<>();
+    private final Map<String, SearchKey> fieldLookupMap = new HashMap<>();
 
     @Value("${search.entities.base-package}")
     private String basePackage;
@@ -66,6 +66,7 @@ public class SearchMetadataRegistry {
         String jpaPath = basePath + "." + attribute;
         SearchKey key = new SearchKey(entityClass, attribute);
 
+        String pathKey = entityClass.getSimpleName() + "." + attribute;
 
         FieldMetadata metadata = FieldMetadata.builder()
                 .field(attribute)
@@ -79,18 +80,22 @@ public class SearchMetadataRegistry {
                 .build();
 
         metadataMap.put(key, metadata);
-        fieldLookupMap.put(attribute, metadata);
+        fieldLookupMap.put(pathKey.toLowerCase(), key);
     }
 
     public FieldMetadata get(SearchKey key) {
         return metadataMap.get(key);
     }
 
-    public FieldMetadata findByField(String field) {
+    public SearchKey findByField(String field) {
         return fieldLookupMap.get(field);
     }
 
-    public Map<SearchKey, FieldMetadata> getAll() {
+    public Map<SearchKey, FieldMetadata> getMetadata() {
         return Collections.unmodifiableMap(metadataMap);
+    }
+
+    public Map<String, SearchKey> getKeyMapping() {
+        return Collections.unmodifiableMap(fieldLookupMap);
     }
 }

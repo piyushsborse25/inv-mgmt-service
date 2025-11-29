@@ -19,7 +19,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@SearchRoot
+@SearchRoot(path = "Order")
 public class Order {
 
     @Id

@@ -1,8 +1,10 @@
 package com.cmp.inv.mgmt.service.engine;
 
 import com.cmp.inv.mgmt.service.enums.Conjunction;
+import com.cmp.inv.mgmt.service.enums.SearchFieldKey;
 import com.cmp.inv.mgmt.service.enums.SearchOperator;
 import com.cmp.inv.mgmt.service.records.FieldMetadata;
+import com.cmp.inv.mgmt.service.records.SearchKey;
 import com.cmp.inv.mgmt.service.registry.SearchMetadataRegistry;
 import com.cmp.inv.mgmt.service.request.FilterCondition;
 import jakarta.persistence.criteria.From;
@@ -31,7 +33,9 @@ public class DynamicSpecificationBuilder {
         Specification<T> specification = null;
 
         for (FilterCondition fc : filters) {
-            FieldMetadata md = registry.findByField(fc.getField());
+            SearchFieldKey fieldEnum = SearchFieldKey.valueOf(fc.getField());
+            SearchKey searchKey = registry.findByField(fieldEnum.toField());
+            FieldMetadata md = registry.get(searchKey);
             if (md == null) {
                 throw new IllegalArgumentException("Field not searchable: " + fc.getField());
             }
