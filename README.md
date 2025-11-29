@@ -8,7 +8,7 @@ This API allows searching Orders using **multiple dynamic filters**, supporting:
 * Pagination
 
 ---
-s
+
 ## 📌 Endpoint
 
 **POST**
