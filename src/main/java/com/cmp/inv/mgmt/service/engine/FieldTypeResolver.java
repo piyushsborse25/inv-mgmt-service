@@ -29,7 +29,7 @@ public final class FieldTypeResolver {
         if (type.isEnum()) {
             return FieldType.ENUM;
         }
-        // fallback for relations (Customer, Product, Category, etc.)
+
         return FieldType.RELATION;
     }
 }

@@ -2,7 +2,7 @@ package com.cmp.inv.mgmt.service.registry;
 
 import com.cmp.inv.mgmt.service.annotations.SearchRoot;
 import com.cmp.inv.mgmt.service.annotations.Searchable;
-import com.cmp.inv.mgmt.service.engine.AllowedOperators;
+import com.cmp.inv.mgmt.service.utils.AllowedOperators;
 import com.cmp.inv.mgmt.service.engine.FieldTypeResolver;
 import com.cmp.inv.mgmt.service.enums.FieldType;
 import com.cmp.inv.mgmt.service.enums.SearchOperator;
@@ -20,6 +20,7 @@ import java.util.*;
 public class SearchMetadataRegistry {
 
     private final Map<SearchKey, FieldMetadata> metadataMap = new HashMap<>();
+    private final Map<String, FieldMetadata> fieldLookupMap = new HashMap<>();
 
     @Value("${search.entities.base-package}")
     private String basePackage;
@@ -56,7 +57,7 @@ public class SearchMetadataRegistry {
         LinkedList<String> joinPath =
                 basePath == null || basePath.isBlank()
                         ? new LinkedList<>()
-                        : new LinkedList<>(Arrays.stream(basePath.toLowerCase().split("\\.")).skip(1).toList());
+                        : new LinkedList<>(Arrays.stream(basePath.split("\\.")).skip(1).toList());
 
         FieldType fieldType = FieldTypeResolver.fromJavaType(field.getType());
         Set<SearchOperator> allowedOperators = AllowedOperators.forType(fieldType);
@@ -68,7 +69,7 @@ public class SearchMetadataRegistry {
 
         FieldMetadata metadata = FieldMetadata.builder()
                 .field(attribute)
-                .jpaPath(jpaPath.toLowerCase())
+                .jpaPath(jpaPath)
                 .entityClass(entityClass)
                 .rootEntityClass(Class.forName(rootClass))
                 .joinPath(joinPath)
@@ -78,16 +79,15 @@ public class SearchMetadataRegistry {
                 .build();
 
         metadataMap.put(key, metadata);
-
-        System.out.println(
-                "Registered: entity=" + entityClass.getSimpleName() +
-                        " attr=" + attribute +
-                        " path=" + jpaPath +
-                        " joins=" + joinPath);
+        fieldLookupMap.put(attribute, metadata);
     }
 
     public FieldMetadata get(SearchKey key) {
         return metadataMap.get(key);
+    }
+
+    public FieldMetadata findByField(String field) {
+        return fieldLookupMap.get(field);
     }
 
     public Map<SearchKey, FieldMetadata> getAll() {

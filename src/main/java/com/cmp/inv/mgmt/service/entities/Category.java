@@ -18,7 +18,7 @@ import java.util.Objects;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@SearchRoot(path = "Order.OrderDetail.Product.Category")
+@SearchRoot(path = "Order.orderDetails.product.category")
 public class Category {
 
     @Id

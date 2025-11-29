@@ -3,6 +3,7 @@ package com.cmp.inv.mgmt.service.entities;
 import com.cmp.inv.mgmt.service.annotations.SearchRoot;
 import com.cmp.inv.mgmt.service.annotations.Searchable;
 import com.cmp.inv.mgmt.service.enums.OrderStatus;
+import com.cmp.inv.mgmt.service.response.OrderResponse;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -68,5 +69,20 @@ public class Order {
         if (customer != null && !customer.getOrders().contains(this)) {
             customer.getOrders().add(this);
         }
+    }
+
+    public OrderResponse toResponse() {
+        OrderResponse dto = new OrderResponse();
+        dto.setId(this.id);
+        dto.setOrderStatus(this.status != null ? this.status.name() : null);
+        dto.setTotalPrice(this.totalPrice != null ? this.totalPrice.doubleValue() : null);
+        dto.setCreatedAt(this.createdAt);
+
+        if (this.customer != null) {
+            dto.setCustomerName(this.customer.getFullName());
+            dto.setCustomerEmail(this.customer.getEmail());
+        }
+
+        return dto;
     }
 }

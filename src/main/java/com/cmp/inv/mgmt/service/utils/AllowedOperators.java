@@ -1,4 +1,4 @@
-package com.cmp.inv.mgmt.service.engine;
+package com.cmp.inv.mgmt.service.utils;
 
 import com.cmp.inv.mgmt.service.enums.FieldType;
 import com.cmp.inv.mgmt.service.enums.SearchOperator;
