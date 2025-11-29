@@ -4,11 +4,11 @@ This API allows searching Orders using **multiple dynamic filters**, supporting:
 
 * Enum-based fields
 * Various operators
-* AND / OR chaining (`nextConj`)
+* AND / OR chaining (`prevConj`)
 * Pagination
 
 ---
-
+s
 ## 📌 Endpoint
 
 **POST**
@@ -33,7 +33,7 @@ http://localhost:8090
 | filters[].field    | Enum         |     ✔    | Search key (e.g. `ORDER_ID`, `PRODUCT_NAME`) |
 | filters[].operator | Enum         |     ✔    | Condition operator                           |
 | filters[].value    | Any          |     ✔    | Value to compare                             |
-| filters[].nextConj | Enum         |     ✘    | `AND` / `OR` → default `AND`                 |
+| filters[].prevConj | Enum         |     ✘    | `AND` / `OR` → default `AND`                 |
 | page               | number       |     ✘    | Pagination offset (default `0`)              |
 | size               | number       |     ✘    | Page size (default `10`)                     |
 
@@ -50,19 +50,19 @@ curl --location 'http://localhost:8090/inv-mgmt-service/v1/orders/search' \
             "field": "ORDER_ID",
             "operator": "EQUALS",
             "value": 12,
-            "nextConj": null
+            "prevConj": null
         },
         {
             "field": "PRODUCT_NAME",
             "operator": "CONTAINS",
             "value": "S",
-            "nextConj": "OR"
+            "prevConj": "OR"
         },
         {
             "field": "CUSTOMER_FULL_NAME",
             "operator": "CONTAINS",
             "value": "Y",
-            "nextConj": "AND"
+            "prevConj": "AND"
         }
     ],
     "page": 0,
@@ -82,7 +82,7 @@ OR (PRODUCT_NAME LIKE '%S%')
 AND (CUSTOMER_FULL_NAME LIKE '%Y%')
 ```
 
-👉 Filters execute in sequence using `nextConj` value.
+👉 Filters execute in sequence using `prevConj` value.
 
 ---
 

@@ -43,7 +43,7 @@ public class DynamicSpecificationBuilder {
             Specification<T> conditionSpec = buildCondition(fc, md);
             specification = (specification == null)
                     ? conditionSpec
-                    : applyConjunction(specification, conditionSpec, fc.getNextConj());
+                    : applyConjunction(specification, conditionSpec, fc.getPrevConj());
         }
 
         return specification;
