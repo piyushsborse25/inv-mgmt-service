@@ -10,5 +10,5 @@ public class FilterCondition {
     private String field;
     private SearchOperator operator;
     private Object value;
-    private Conjunction nextConj;
+    private Conjunction prevConj;
 }
